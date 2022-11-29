@@ -1,6 +1,7 @@
 package fi.utu.tech.telephonegame;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.UUID;
@@ -61,7 +62,7 @@ public class MessageBroker extends Thread {
 	 * 
 	 */
 	public void run() {
-
+		
 	}
 
 	/**

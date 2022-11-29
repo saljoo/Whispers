@@ -1,7 +1,9 @@
 package fi.utu.tech.telephonegame.network;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.ServerSocket;
@@ -75,6 +77,21 @@ public class NetworkService extends Thread implements Network {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public Serializable receive(){
+		Serializable viesti = null;
+		try {
+			FileInputStream fis = new FileInputStream("file.txt");
+			ObjectInputStream input = new ObjectInputStream(fis);
+			viesti = (Serializable) input.readObject();
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return viesti;
 	}
 
 	/*
