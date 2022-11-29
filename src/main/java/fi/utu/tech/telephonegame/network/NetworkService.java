@@ -1,7 +1,11 @@
 package fi.utu.tech.telephonegame.network;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +18,7 @@ public class NetworkService extends Thread implements Network {
 	 */
 	private TransferQueue<Object> inQueue = new LinkedTransferQueue<Object>(); // For messages incoming from network
 	private TransferQueue<Serializable> outQueue = new LinkedTransferQueue<Serializable>(); // For messages outgoing to network
+	private ServerSocket server = null;
 
 
 	/*
@@ -32,9 +37,13 @@ public class NetworkService extends Thread implements Network {
 	 * @param serverPort Which port should we start to listen to?
 	 * 
 	 */
-	public void startListening(int serverPort) {
+	public void startListening(int serverPort){
 		System.out.printf("I should start listening for peers at port %d%n", serverPort);
-		// TODO
+		try {
+			server = new ServerSocket(serverPort);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -47,7 +56,7 @@ public class NetworkService extends Thread implements Network {
 	 */
 	public void connect(String peerIP, int peerPort) throws IOException, UnknownHostException {
 		System.out.printf("I should connect myself to %s, port %d%n", peerIP, peerPort);
-		// TODO
+		Socket clientSocket = new Socket(peerIP, peerPort);
 	}
 
 	/**
@@ -58,7 +67,14 @@ public class NetworkService extends Thread implements Network {
 	 */
 	private void send(Serializable out) {
 		// Send the object to all neighbouring nodes
-		// TODO
+		try {
+			FileOutputStream fout = new FileOutputStream("file.txt");
+			ObjectOutputStream output = new ObjectOutputStream(fout);
+			output.writeObject(out);
+			output.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*
