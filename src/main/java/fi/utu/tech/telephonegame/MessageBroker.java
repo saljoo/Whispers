@@ -47,6 +47,7 @@ public class MessageBroker extends Thread {
 	 * 7. Return the processed message
 	 */
 	private Message process(Object procMessage) {
+		//gui_io.setReceivedMessage(message);
 		return null;
 	}
 
