@@ -1,22 +1,20 @@
 package fi.utu.tech.telephonegame.network;
 
-//import fi.utu.tech.telephonegame.Message;
-//import fi.utu.tech.telephonegame.MessageBroker;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
+//Class to handle receiving and sending of the messages by using threads
 public class ClientHandler extends Thread{
     private Socket client;
     private NetworkService nS;
     private ObjectOutputStream oOs;
+    private ObjectInputStream oIn;
 
-    //Konstruktori
+    //Constructor of the class
     public ClientHandler(Socket s, NetworkService nS){
         this.client = s;
         this.nS = nS;
@@ -24,27 +22,33 @@ public class ClientHandler extends Thread{
 
     public void run(){
         try {
+            //Create inputstream and outputstream using client socket
+            InputStream iS = client.getInputStream();
             OutputStream oS = client.getOutputStream();
             oOs = new ObjectOutputStream(oS);
-            InputStream iS = client.getInputStream();
-            ObjectInputStream oIn = new ObjectInputStream(iS);
-            while (true) {
+            oIn = new ObjectInputStream(iS);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        while (true) {
+            try{
+                //Read incoming message
                 Object message = oIn.readObject();
-                System.out.println(message);
-                nS.setInQueue(message);
+                //Add message to inQueue
+                nS.getInputQueue().add(message);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            throw new Error(e.toString());
         }
     }
 
-    public void send(Serializable message){
+    //Method to send messages
+    public void send(Object message){
         try{
             oOs.writeObject(message);
             oOs.flush();
         } catch (IOException e){
             e.printStackTrace();
         }
-        
     }
 }

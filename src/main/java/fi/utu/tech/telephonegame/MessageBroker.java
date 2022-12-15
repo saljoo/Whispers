@@ -1,9 +1,7 @@
 package fi.utu.tech.telephonegame;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.UnknownHostException;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TransferQueue;
 import fi.utu.tech.telephonegame.network.Network;
@@ -47,8 +45,29 @@ public class MessageBroker extends Thread {
 	 * 7. Return the processed message
 	 */
 	private Message process(Object procMessage) {
-		//gui_io.setReceivedMessage(message);
-		return null;
+		// Check if procMessage is Message type object
+		if (!(procMessage instanceof Message)) { 
+			return null;
+		}
+
+		// Create Message type object from procMessage
+		Message checkedMessage = (Message) procMessage;
+		
+		// Check if checkedMessage is in prevMessages comparing with ids
+		// No need to process if true
+		if (this.prevMessages.containsKey(checkedMessage.getId())) { 
+			return null;
+		}
+		
+		// Show received message, set color, show refined message
+		this.gui_io.setReceivedMessage(checkedMessage.getMessage()); 
+		checkedMessage.setColor(Refiner.refineColor(checkedMessage.getColor()));
+		checkedMessage.setMessage(Refiner.refineText(checkedMessage.getMessage())); 
+		this.gui_io.setSignal(checkedMessage.getColor()); 
+		this.gui_io.setRefinedMessage(checkedMessage.getMessage());
+		// Add checkedMessage id to prevMessages
+		this.prevMessages.put(checkedMessage.getId()); 
+		return checkedMessage;
 	}
 
 	/*
@@ -63,7 +82,22 @@ public class MessageBroker extends Thread {
 	 * 
 	 */
 	public void run() {
-		
+		while(true) {
+			Object fromQueue = null;
+			try {
+				// Save the first object from procQueue to fromQueue
+				fromQueue = this.procQueue.take();
+			} catch (InterruptedException e) { 
+				e.printStackTrace();
+			}
+			// Save processed message to changedMessage
+			Message changedMessage = this.process(fromQueue);
+			// Check that message is not null, add changedMessage id to prevMessages and post changedMessage
+			if(!(changedMessage == null)) {
+				prevMessages.put(changedMessage.getId());
+				this.network.postMessage(changedMessage);
+			}	
+		}
 	}
 
 	/**
@@ -72,6 +106,8 @@ public class MessageBroker extends Thread {
 	 * @param message The Message object to be sent
 	 */
 	public void send(Message message) {
+		// Add message id to prevMessages
+		prevMessages.put(message.getId());
 		network.postMessage(message);
 	}
 
@@ -83,6 +119,8 @@ public class MessageBroker extends Thread {
 	 */
 	public void send(String text) {
 		Message message = new Message(text, 0);
+		// Add message id to prevMessages
+		prevMessages.put(message.getId());
 		this.send(message);
 	}
 
