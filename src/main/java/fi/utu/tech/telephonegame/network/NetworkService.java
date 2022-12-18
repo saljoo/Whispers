@@ -2,7 +2,10 @@ package fi.utu.tech.telephonegame.network;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
@@ -14,7 +17,8 @@ public class NetworkService extends Thread implements Network {
 	 */
 	private TransferQueue<Object> inQueue = new LinkedTransferQueue<Object>(); // For messages incoming from network
 	private TransferQueue<Serializable> outQueue = new LinkedTransferQueue<Serializable>(); // For messages outgoing to network
-
+	private Socket s;
+	private CopyOnWriteArrayList<ClientHandler> clientHandlers = new CopyOnWriteArrayList<ClientHandler>(); // Array to save all the ClientHandler objects
 
 	/*
 	 * No need to change the construtor
@@ -23,8 +27,6 @@ public class NetworkService extends Thread implements Network {
 		this.start();
 	}
 
-
-
 	/**
 	 * Creates a server instance and starts listening for new peers on specified port
 	 * The port used to listen incoming connections is provided by the template
@@ -32,9 +34,24 @@ public class NetworkService extends Thread implements Network {
 	 * @param serverPort Which port should we start to listen to?
 	 * 
 	 */
-	public void startListening(int serverPort) {
-		System.out.printf("I should start listening for peers at port %d%n", serverPort);
-		// TODO
+	public void startListening(int serverPort){
+		// Run server in its own thread
+		new Thread(() -> {
+			System.out.printf("I should start listening for peers at port %d%n", serverPort);
+			// Create ServerSocket object
+			try (ServerSocket server = new ServerSocket(serverPort)) {
+				while(true){
+					// Start waiting for connection requests
+					s = server.accept();
+					// Create new ClientHandler and run it in its own thread
+					ClientHandler ch = new ClientHandler(s, this);
+					ch.start();
+					clientHandlers.add(ch); // Add ClientHandler to array of ClientHandler objects
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}).start(); // Start the server
 	}
 
 	/**
@@ -47,7 +64,12 @@ public class NetworkService extends Thread implements Network {
 	 */
 	public void connect(String peerIP, int peerPort) throws IOException, UnknownHostException {
 		System.out.printf("I should connect myself to %s, port %d%n", peerIP, peerPort);
-		// TODO
+		// Create new Socket for connecting client to server
+		Socket clientSocket = new Socket(peerIP, peerPort);
+		// Create new ClientHandler and run it in its own thread
+		ClientHandler ch = new ClientHandler(clientSocket, this);
+		ch.start();
+		clientHandlers.add(ch); // Add ClientHandler to array of ClientHandler objects
 	}
 
 	/**
@@ -58,7 +80,9 @@ public class NetworkService extends Thread implements Network {
 	 */
 	private void send(Serializable out) {
 		// Send the object to all neighbouring nodes
-		// TODO
+		for(ClientHandler i : clientHandlers){
+			i.send(out);
+		}
 	}
 
 	/*

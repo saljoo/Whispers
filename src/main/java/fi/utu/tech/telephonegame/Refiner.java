@@ -1,37 +1,26 @@
 package fi.utu.tech.telephonegame;
 
 import java.util.Random;
-import fi.utu.tech.telephonegame.util.Words;
 
 public class Refiner {
 
-	/*
-		The default implementation of Refiner uses word lists defined in fi.utu.tech.telephonegame.util.Words
-		You can create your own lists either here or in the Words class.
-	 */
-	/*
-	private static final String[] subjects = (
-			"Lorem ipsum dolor sit amet, consectetur adipiscing elit Aliquam laoreet vitae lectus id vehicula ")
-					.split(" ");
-
-	private static final String[] predicates = (
-			"Lorem ipsum dolor sit amet, consectetur adipiscing elit Aliquam laoreet vitae lectus id vehicula ")
-			.split(" ");
-
-	private static final String[] objects = (
-			"Lorem ipsum dolor sit amet, consectetur adipiscing elit Aliquam laoreet vitae lectus id vehicula ")
-			.split(" ");
-	 */
 	private static final String[] conjunctions  = (
 			"että, jotta, koska, kun, jos, vaikka, kunnes, mikäli, ja")
 			.split(",");
 
-	/*
-		If you decide to use the lists above, comment out the following three lines.
-	 */
-	private static final String[] subjects = Words.subjects;
-	private static final String[] predicates = Words.predicates;
-	private static final String[] objects = Words.subjects;
+
+	//Initialize arrays of words to be used in refining the message
+	private static final String[] animals = (
+			"karhu, koira, kissa, kilpikonna, kani, käärme, hevonen, lumikko, gepardi, leijona, tiikeri, kirahvi, sarvikuono, tietopussihiiri, hiirihamsteri, gnuu, gorilla, apina, paviaani, hylje, norsu, sika, lehmä, lammas, varaani, iguaani, jaguaari, puuma, valas, valkohai, delfiini, sammakko, chinchilla, kapybara, villisika, piikkisika, kettu, susi, pöllö")
+			.split(",");
+
+	private static final String[] verbs = (
+			"kaivaa, kuopii, syöttää, juottaa, kupittaa, hyppii, istuu, seisoo, laulaa, huutaa, hakkaa, raivoaa, puree, kirjoittaa, lukee, katsoo, ohjelmoi, päivittää, palauttaa, abstrahoi, maksaa, tulee, juoksee, kävelee, neppailee, kumittaa, tuijottaa, vetää, työntää, jammailee, soittelee, riehuu, avaa, korkkaa, kiipeilee, potkii, pomppii, kierii, toljottaa")
+			.split(",");
+
+	private static final String[] adjectives = (
+			"ainainen, aistikas, aistillinen, aito, ajattelevainen, akateeminen, bailaava, bakteeriton, balansoiva, balleriinamainen, ballistinen, balsamoiva, charmikas, cool, diskomainen, duunaava, dynaaminen, eksoottinen, eloisa, elävä, empaattinen, fyysinen, fiksu, filmaattinen, grillimäinen, giganttinen, hajoamaton, hallitseva, hallittu, halpa, haltioitunut, haluava, ihana, identtinen, iloinen, juopunut, jalo, janoisa, joustava")
+			.split(",");
 
 	private static final Random rnd = new Random();
 
@@ -52,9 +41,9 @@ public class Refiner {
 		// Change the content of the message here.
 		outText = outText + " " +
 				conjunctions[rnd.nextInt(conjunctions.length)] + " " +
-				subjects[rnd.nextInt(subjects.length)] + " " +
-				predicates[rnd.nextInt(predicates.length)]+ " " +
-				objects[rnd.nextInt(objects.length)];
+				adjectives[rnd.nextInt(adjectives.length)] + " " +
+				animals[rnd.nextInt(animals.length)]+ " " +
+				verbs[rnd.nextInt(verbs.length)];
 
 		return outText;
 	}
